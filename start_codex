@@ -1,0 +1,32 @@
+# Codex AGENTS Runner (ASCII-safe)
+# Moves to the script directory, checks AGENTS.md, then initializes and runs Codex.
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+# 1) Move to script directory
+Set-Location -LiteralPath $PSScriptRoot
+
+# 2) Require AGENTS.md
+if (-not (Test-Path -LiteralPath ".\AGENTS.md")) {
+    Write-Host "ERROR: AGENTS.md not found in $PSScriptRoot" -ForegroundColor Red
+    exit 1
+}
+
+# 3) Optional: allow running this script
+try {
+    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force | Out-Null
+} catch {}
+
+# 4) Unblock the script and AGENTS.md (in case downloaded from web)
+try { Unblock-File -LiteralPath ".\start_codex.ps1" } catch {}
+try { Unblock-File -LiteralPath ".\AGENTS.md" } catch {}
+
+# 5) Show context
+Write-Host "Working directory: $PSScriptRoot"
+Write-Host "Initializing Codex with AGENTS.md..."
+
+# 6) Run Codex
+# Note: using call operator '&' to invoke commands safely
+& codex /init AGENTS.md
+& codex "Generate and start the full system described in AGENTS.md"
